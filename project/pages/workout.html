@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitLife - Тренировки</title>
+  <link rel="stylesheet" href="../styles/workout_html.css">
+</head>
+<body>
+  <header>
+    <div class="profile">
+      <img src="https://i.pravatar.cc/45" class="profile-img" alt="Профиль">
+      <span>Алексей Тренировкин</span>
+    </div>
+    <div class="burger" onclick="toggleMenu()">☰</div>
+  </header>
+
+  <nav class="menu" id="menu">
+    <a href="index.html">🏠 Главная</a>
+    <a href="diet.html">🥗 Диета</a>
+    <a href="workout.html" class="active">💪 Тренировки</a>
+    <a href="progress.html">📊 Прогресс</a>
+    <a href="settings.html">⚙️ Настройки</a>
+  </nav>
+
+  <main class="main">
+    <section class="training-section">
+      <div id="trainingChoice">
+        <h2>Выберите программу тренировок</h2>
+        <div class="training-cards">
+          <div class="training-card" onclick="selectProgram('strength')">
+            <h3>💪 Силовые</h3>
+            <p>4-5 тренировок в неделю</p>
+            <p>Набор мышечной массы</p>
+          </div>
+          <div class="training-card" onclick="selectProgram('cardio')">
+            <h3>🏃 Функциональные</h3>
+            <p>5-6 тренировок в неделю</p>
+            <p>Развитие выносливости</p>
+          </div>
+          <div class="training-card" onclick="selectProgram('yoga')">
+            <h3>🧘 Йога</h3>
+            <p>Ежедневные практики</p>
+            <p>Гибкость и расслабление</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="currentProgram" style="display: none;">
+        <div class="program-stats">
+          <div class="refresh-section">
+            <h2 id="programTitle"></h2>
+            <button class="btn" onclick="showTrainingChoice()">🔄 Сменить программу</button>
+          </div>
+          
+          <div class="day-selector" id="trainingDaySelector"></div>
+          
+          <div id="dailyWorkout">
+            <h3>Тренировка дня: <span id="currentTrainingDay"></span></h3>
+            <div class="exercise-list" id="exerciseList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const programs = {
+      strength: {
+        title: '💪 Силовая программа',
+        days: ['Понедельник', 'Среда', 'Пятница'],
+        schedule: {
+          'Понедельник': [
+            {
+              name: 'Жим штанги лежа',
+              video: 'https://www.youtube.com/embed/rT7DgCr-3pg',
+              sets: '4 подхода по 8-12 повторений',
+              rest: '2 минуты отдыха',
+              focus: 'Грудь, трицепсы'
+            },
+            {
+              name: 'Приседания со штангой',
+              video: 'https://www.youtube.com/embed/bEv6CCg2BC8',
+              sets: '5 подходов по 6-8 повторений',
+              rest: '3 минуты отдыха',
+              focus: 'Ноги, ягодицы'
+            }
+          ],
+          'Среда': [
+            {
+              name: 'Становая тяга',
+              video: 'https://www.youtube.com/embed/1XulFrwAN9U',
+              sets: '5 подходов по 5 повторений',
+              rest: '3 минуты отдыха',
+              focus: 'Спина, ноги'
+            }
+          ],
+          'Пятница': [
+            {
+              name: 'Подтягивания',
+              video: 'https://www.youtube.com/embed/eGo4IYlbE5g',
+              sets: '4 подхода до отказа',
+              rest: '2 минуты отдыха',
+              focus: 'Спина, бицепсы'
+            }
+          ]
+        }
+      },
+           cardio: {
+        title: '🏃 Функциональный тренинг',
+        days: ['Вторник', 'Четверг', 'Суббота'],
+        schedule: {
+          'Вторник': [
+            {
+              name: 'Интервальный бег',
+              video: 'https://www.youtube.com/embed/5umbf5ds-cg',
+              duration: '30 минут',
+              intensity: 'Высокая'
+            }
+          ],
+          'Четверг': [
+            {
+              name: 'Кроссфит комплекс',
+              video: 'https://www.youtube.com/embed/VV3Ra6APM4E',
+              duration: '45 минут',
+              intensity: 'Высокая'
+            }
+          ],
+          'Суббота': [
+            {
+              name: 'Прыжковая тренировка',
+              video: 'https://www.youtube.com/embed/X_9LQhwDBkA',
+              duration: '35 минут',
+              intensity: 'Средняя'
+            }
+          ]
+        }
+      },
+      yoga: {
+        title: '🧘 Ежедневная йога',
+        days: ['Утро', 'Вечер'],
+        schedule: {
+          'Утро': [
+            {
+              name: 'Комплекс "Приветствие Солнцу"',
+              video: 'https://www.youtube.com/embed/dAqQqmaCCI4',
+              duration: '25 минут',
+              focus: 'Гибкость, дыхание'
+            }
+          ],
+          'Вечер': [
+            {
+              name: 'Расслабляющая йога',
+              video: 'https://www.youtube.com/embed/4pKly2JojMw',
+              duration: '30 минут',
+              focus: 'Релаксация'
+            }
+          ]
+        }
+      }
+    };
+
+    let currentProgram = null;
+
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('active');
+    }
+
+    function selectProgram(type) {
+      localStorage.setItem('currentProgram', type);
+      currentProgram = programs[type];
+      loadProgram();
+    }
+
+    function loadProgram() {
+      if (!currentProgram) return showTrainingChoice();
+      
+      document.getElementById('trainingChoice').style.display = 'none';
+      document.getElementById('currentProgram').style.display = 'block';
+      
+      document.getElementById('programTitle').textContent = currentProgram.title;
+      updateTrainingDaySelector();
+      showTrainingDay(currentProgram.days[0]);
+    }
+
+    function updateTrainingDaySelector() {
+      const container = document.getElementById('trainingDaySelector');
+      container.innerHTML = currentProgram.days.map(day => `
+        <button class="day-button ${day === currentProgram.days[0] ? 'active' : ''}" 
+                onclick="handleDaySelect('${day}')">
+          ${day}
+        </button>
+      `).join('');
+    }
+
+    function handleDaySelect(day) {
+      document.querySelectorAll('.day-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      showTrainingDay(day);
+    }
+
+    function showTrainingDay(day) {
+      const exercises = currentProgram.schedule[day];
+      if (!exercises) return;
+
+      document.getElementById('currentTrainingDay').textContent = day;
+      
+      const exercisesHTML = exercises.map(ex => `
+        <div class="exercise-card">
+          <h4>${ex.name}</h4>
+          <div class="video-container">
+            <iframe src="${ex.video}" allowfullscreen></iframe>
+          </div>
+          <div class="exercise-props">
+            ${ex.sets ? `<div class="exercise-prop">📊 ${ex.sets}</div>` : ''}
+            ${ex.duration ? `<div class="exercise-prop">⏱ ${ex.duration}</div>` : ''}
+            <div class="exercise-prop">🎯 ${ex.focus}</div>
+            ${ex.rest ? `<div class="exercise-prop">🛌 ${ex.rest}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('exerciseList').innerHTML = exercisesHTML;
+    }
+
+    function showTrainingChoice() {
+      localStorage.removeItem('currentProgram');
+      currentProgram = null;
+      document.getElementById('trainingChoice').style.display = 'block';
+      document.getElementById('currentProgram').style.display = 'none';
+    }
+    function showTrainingDay(day) {
+      const exercises = currentProgram.schedule[day];
+      const exerciseList = document.getElementById('exerciseList');
+      
+      if (!exercises || exercises.length === 0) {
+        exerciseList.innerHTML = `
+          <div class="exercise-card">
+            <h4>День отдыха 🧘</h4>
+            <p>Сегодня запланирован восстановительный отдых</p>
+          </div>
+        `;
+        return;
+      }
+
+      const exercisesHTML = exercises.map(ex => `
+        <div class="exercise-card">
+          <h4>${ex.name}</h4>
+          <div class="video-container">
+            <iframe 
+              src="${ex.video}" 
+              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="exercise-props">
+            ${ex.sets ? `<div class="exercise-prop">📊 ${ex.sets}</div>` : ''}
+            ${ex.duration ? `<div class="exercise-prop">⏱ ${ex.duration}</div>` : ''}
+            <div class="exercise-prop">🎯 ${ex.focus || ex.intensity}</div>
+            ${ex.rest ? `<div class="exercise-prop">🛌 ${ex.rest}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      exerciseList.innerHTML = exercisesHTML;
+    }
+    
+   
+// Инициализация VK Mini Apps
+vkBridge.send('VKWebAppInit');
+
+// Получение данных пользователя
+async function fetchUserData() {
+  try {
+    const user = await vkBridge.send('VKWebAppGetUserInfo');
+    
+    // Устанавливаем аватарку
+    const userPhoto = document.getElementById('userPhoto');
+    userPhoto.src = user.photo_200 || 'https://vk.com/images/camera_200.png';
+    
+    // Устанавливаем имя
+    const username = document.getElementById('username');
+    username.textContent = `${user.first_name} ${user.last_name}`;
+    
+    // Дополнительные данные (при необходимости)
+    console.log('User data:', user);
+    
+  } catch (error) {
+    console.error('Ошибка загрузки данных:', error);
+    // Запасные значения
+    document.getElementById('userPhoto').src = 'https://vk.com/images/camera_200.png';
+    document.getElementById('username').textContent = 'Гость';
+  }
+}
+
+// Вызываем при загрузке страницы
+window.addEventListener('DOMContentLoaded', () => {
+  fetchUserData();
+  // Остальная инициализация...
+});
+
+    // Проверяем тему при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+});
+
+    // Инициализация при загрузке
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedProgram = localStorage.getItem('currentProgram');
+      if (savedProgram && programs[savedProgram]) {
+        currentProgram = programs[savedProgram];
+        loadProgram();
+      }
+    });
+  </script>
+</body>
+</html>

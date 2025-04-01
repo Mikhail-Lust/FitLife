@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitLife - Настройки</title>
+  <link rel="stylesheet" href="../styles/settings_html.css">
+</head>
+<body>
+  <header>
+    <div class="profile">
+      <img src="https://i.pravatar.cc/45" class="profile-img" id="userPhoto" alt="Профиль">
+      <span id="username">Гость</span>
+    </div>
+    <div class="burger" onclick="toggleMenu()">☰</div>
+  </header>
+
+  <nav class="menu" id="menu">
+    <a href="index.html" onclick="closeMenu()">🏠 Главная</a>
+    <a href="diet.html" onclick="closeMenu()">🥗 Диета</a>
+    <a href="workout.html" onclick="closeMenu()">💪 Тренировки</a>
+    <a href="progress.html" onclick="closeMenu()">📊 Прогресс</a>
+    <a href="settings.html" onclick="closeMenu()">⚙️ Настройки</a>
+  </nav>
+
+  <main class="main">
+    <div class="settings-list">
+      <h2>Настройки приложения</h2>
+      
+      <div class="setting-item">
+        <div>
+          <h3>Темная тема</h3>
+          <p>Включить ночной режим</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="darkTheme">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <h3>Уведомления</h3>
+          <p>Напоминания из приложения</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notifications">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <h3>Единицы измерения</h3>
+          <p>Метрическая система (кг/см)</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="units">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <script>
+    // Инициализация VK
+    vkBridge.send('VKWebAppInit');
+
+    // Функции меню
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('active');
+    }
+
+    function closeMenu() {
+      document.getElementById('menu').classList.remove('active');
+    }
+
+    // Получение данных пользователя
+    async function fetchUserData() {
+      try {
+        const user = await vkBridge.send('VKWebAppGetUserInfo');
+        document.getElementById('username').textContent = `${user.first_name} ${user.last_name}`;
+        document.getElementById('userPhoto').src = user.photo_100 || 'https://i.pravatar.cc/45';
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+        document.getElementById('userPhoto').src = 'https://i.pravatar.cc/45';
+        document.getElementById('username').textContent = 'Гость';
+      }
+    }
+
+    // Настройки темы
+    function loadSettings() {
+      return {
+        darkTheme: localStorage.getItem('theme') === 'dark',
+        notifications: localStorage.getItem('notifications') === 'true',
+        units: localStorage.getItem('units') === 'metric'
+      };
+    }
+
+    function applySettings() {
+      const settings = loadSettings();
+      document.documentElement.setAttribute('data-theme', settings.darkTheme ? 'dark' : 'light');
+      document.getElementById('darkTheme').checked = settings.darkTheme;
+      document.getElementById('notifications').checked = settings.notifications;
+      document.getElementById('units').checked = settings.units;
+    }
+
+    document.getElementById('darkTheme').addEventListener('change', function(e) {
+      localStorage.setItem('theme', e.target.checked ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light');
+    });
+
+    document.getElementById('notifications').addEventListener('change', function(e) {
+      localStorage.setItem('notifications', e.target.checked);
+    });
+
+    document.getElementById('units').addEventListener('change', function(e) {
+      localStorage.setItem('units', e.target.checked ? 'metric' : 'imperial');
+    });
+
+    // Инициализация
+    window.addEventListener('DOMContentLoaded', () => {
+      // Установка значений по умолчанию
+      if(!localStorage.getItem('theme')) localStorage.setItem('theme', 'light');
+      if(!localStorage.getItem('notifications')) localStorage.setItem('notifications', 'true');
+      if(!localStorage.getItem('units')) localStorage.setItem('units', 'metric');
+      
+      fetchUserData();
+      applySettings();
+    });
+    
+  
+// Инициализация VK Mini Apps
+vkBridge.send('VKWebAppInit');
+
+// Получение данных пользователя
+async function fetchUserData() {
+  try {
+    const user = await vkBridge.send('VKWebAppGetUserInfo');
+    
+    // Устанавливаем аватарку
+    const userPhoto = document.getElementById('userPhoto');
+    userPhoto.src = user.photo_200 || 'https://vk.com/images/camera_200.png';
+    
+    // Устанавливаем имя
+    const username = document.getElementById('username');
+    username.textContent = `${user.first_name} ${user.last_name}`;
+    
+    // Дополнительные данные (при необходимости)
+    console.log('User data:', user);
+    
+  } catch (error) {
+    console.error('Ошибка загрузки данных:', error);
+    // Запасные значения
+    document.getElementById('userPhoto').src = 'https://vk.com/images/camera_200.png';
+    document.getElementById('username').textContent = 'Гость';
+  }
+}
+
+// Вызываем при загрузке страницы
+window.addEventListener('DOMContentLoaded', () => {
+  fetchUserData();
+  // Остальная инициализация...
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!-- settings_old.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitLife - Настройки</title>
+  <style>
+    /* Все предыдущие стили */
+    
+    .settings-list {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 2rem 0;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    :root {
+  /* Светлая тема */
+  --primary: #2ecc71;
+  --secondary: #27ae60;
+  --background: #f5f6fa;
+  --text: #2d3436;
+  --white: #ffffff;
+  
+  /* Дополнительные цвета */
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
+}
+
+[data-theme="dark"] {
+  /* Темная тема */
+  --background: #1a1a1a;
+  --text: #ffffff;
+  --white: #2d2d2d;
+  --card-bg: #2d2d2d;
+  --border-color: #404040;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.diet-card,
+.training-card,
+.exercise-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Тот же хедер -->
+  </header>
+
+  <nav class="menu">
+    <!-- То же меню -->
+  </nav>
+
+  <main class="main">
+    <div class="settings-list">
+      <h2>Настройки приложения</h2>
+      
+      <div class="setting-item">
+        <div>
+          <h3>Темная тема</h3>
+          <p>Включить ночной режим</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="darkTheme">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <h3>Уведомления</h3>
+          <p>Напоминания из приложения</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notifications" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <h3>Единицы измерения</h3>
+          <p>Метрическая система (кг/см)</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="units">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Сохранение настроек
+    const settings = {
+      darkTheme: localStorage.getItem('darkTheme') === 'true',
+      notifications: localStorage.getItem('notifications') !== 'false',
+      units: localStorage.getItem('units') !== 'imperial'
+    };
+
+    // Применение настроек при загрузке
+    function applySettings() {
+      if(settings.darkTheme) enableDarkTheme();
+      document.getElementById('darkTheme').unchecked = settings.darkTheme;
+      document.getElementById('notifications').checked = settings.notifications;
+      document.getElementById('units').checked = settings.units;
+    }
+
+    function enableDarkTheme() {
+      document.documentElement.style.setProperty('--primary', '#27ae60');
+      document.documentElement.style.setProperty('--background', '#2d3436');
+      document.documentElement.style.setProperty('--text', '#f5f6fa');
+      document.documentElement.style.setProperty('--white', '#2d3436');
+    }
+
+    // Обработчики изменений
+    
+
+    document.getElementById('notifications').addEventListener('change', function(e) {
+      localStorage.setItem('notifications', e.target.checked);
+    });
+
+    document.getElementById('units').addEventListener('change', function(e) {
+      localStorage.setItem('units', e.target.checked ? 'metric' : 'imperial');
+    });
+
+    window.addEventListener('DOMContentLoaded', applySettings);
+    
+    function applyTheme() {
+  const isDark = localStorage.getItem('theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+}
+
+function toggleTheme() {
+  const isDark = localStorage.getItem('theme') === 'dark';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+  applyTheme();
+}
+
+// Инициализация при загрузке
+applyTheme();
+
+// Добавьте обработчик на переключатель
+document.getElementById('darkTheme').addEventListener('change', toggleTheme);
+
+  </script>
+  <!-- settings_old.html -->
+<script>
+    // Сохранение настроек
+    function loadSettings() {
+        return {
+            darkTheme: localStorage.getItem('theme') === 'dark',
+            notifications: localStorage.getItem('notifications') === 'true',
+            units: localStorage.getItem('units') === 'metric'
+        };
+    }
+
+    // Применение настроек при загрузке
+    function applySettings() {
+        const settings = loadSettings();
+        
+        // Применяем тему
+        document.documentElement.setAttribute('data-theme', 
+            settings.darkTheme ? 'dark' : 'light');
+        
+        // Устанавливаем состояния переключателей
+        document.getElementById('darkTheme').checked = settings.darkTheme;
+        document.getElementById('notifications').checked = settings.notifications;
+        document.getElementById('units').checked = settings.units;
+    }
+
+    // Обработчики изменений
+    document.getElementById('darkTheme').addEventListener('change', function(e) {
+        localStorage.setItem('theme', e.target.checked ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', 
+            e.target.checked ? 'dark' : 'light');
+    });
+
+    document.getElementById('notifications').addEventListener('change', function(e) {
+        localStorage.setItem('notifications', e.target.checked);
+    });
+
+    document.getElementById('units').addEventListener('change', function(e) {
+        localStorage.setItem('units', e.target.checked ? 'metric' : 'imperial');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // Установка значений по умолчанию при первом запуске
+        if(!localStorage.getItem('theme')) {
+            localStorage.setItem('theme', 'light');
+        }
+        if(!localStorage.getItem('notifications')) {
+            localStorage.setItem('notifications', 'true');
+        }
+        if(!localStorage.getItem('units')) {
+            localStorage.setItem('units', 'metric');
+        }
+        
+        applySettings();
+    });
+</script>
+</body>
+</html>

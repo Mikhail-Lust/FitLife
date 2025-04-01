@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitLife - Персональный фитнес-трекер</title>
+  <link rel="stylesheet" href="../styles/index_html.css">
+</head>
+<body>
+  <header>
+    <div class="profile">
+      <img src="https://i.pravatar.cc/45" class="profile-img" alt="Профиль">
+      <span id="username">Гость</span>
+    </div>
+    <div class="burger" onclick="toggleMenu()">☰</div>
+  </header>
+
+  <nav class="menu" id="menu">
+    <a href="#" onclick="closeMenu()">🏠 Главная</a>
+    <a href="diet.html" onclick="closeMenu()">🥗 Диета</a>
+    <a href="workout.html" onclick="closeMenu()">💪 Тренировки</a>
+    <a href="progress.html" onclick="closeMenu()">📊 Прогресс</a>
+    <a href="settings.html" onclick="closeMenu()">⚙️ Настройки</a>
+  </nav>
+
+  <main class="main">
+    <section class="hero">
+      <h1>Добро пожаловать, <span id="mainUsername">Гость</span>!</h1>
+      <p>Ваш персональный помощник в мире фитнеса и здоровья</p>
+      
+      <div class="btn-group">
+        <button class="btn" onclick="startDiet()">🥗 Начать диету</button>
+        <button class="btn" onclick="startWorkout()">🏋️ Начать тренировку</button>
+        <button class="btn" onclick="showProgress()">📊 Мой прогресс</button>
+      </div>
+    </section>
+
+      <section class="section">
+      <div class="progress-ring">
+        <svg class="progress-svg" width="150" height="150">
+          <circle
+            cx="75"
+            cy="75"
+            r="70"
+            fill="none"
+            stroke="#eee"
+            stroke-width="10"
+          />
+          <circle
+            cx="75"
+            cy="75"
+            r="70"
+            fill="none"
+            stroke="var(--primary)"
+            stroke-width="10"
+            stroke-dasharray="439.8"
+            stroke-dashoffset="439.8"
+            id="progressCircle"
+          />
+        </svg>
+        <div class="progress-text">0%</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>💧 Водный баланс</h2>
+      <div class="water-tracker">
+        <div class="water-bottle">
+          <div class="water-fill" id="waterFill"></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn" onclick="addWater(250)">+250 мл</button>
+          <button class="btn" onclick="addWater(500)">+500 мл</button>
+        </div>
+        <p>Выпито сегодня: <span id="waterCount">0</span> / 2000 мл</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+     // Инициализация прогресса
+    const progressCircle = document.getElementById('progressCircle');
+    const circumference = 2 * Math.PI * 70;
+    let currentProgress = 0;
+
+    progressCircle.style.strokeDasharray = circumference;
+    progressCircle.style.strokeDashoffset = circumference;
+
+    function updateProgress(percent) {
+      const offset = circumference - (percent / 100) * circumference;
+      progressCircle.style.strokeDashoffset = offset;
+      document.querySelector('.progress-text').textContent = `${percent}%`;
+    }  
+
+    // Управление меню
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('active');
+    }
+
+    function closeMenu() {
+      document.getElementById('menu').classList.remove('active');
+    }
+
+    // Водный баланс
+    let waterTotal = 0;
+    const maxWater = 2000;
+
+    function addWater(amount) {
+      waterTotal = Math.min(waterTotal + amount, maxWater);
+      updateWaterDisplay();
+    }
+
+    function updateWaterDisplay() {
+      document.getElementById('waterCount').textContent = waterTotal;
+      const fillHeight = (waterTotal / maxWater) * 100;
+      document.getElementById('waterFill').style.height = `${fillHeight}%`;
+    }
+
+    // Загрузка данных пользователя
+    function loadUserData() {
+      // Здесь должна быть логика загрузки реальных данных
+      document.getElementById('username').textContent = 'Анна Петрова';
+      document.getElementById('mainUsername').textContent = 'Анна Петрова';
+      updateProgress(45);
+      updateWaterDisplay();
+    }
+
+    // Инициализация приложения
+    window.addEventListener('DOMContentLoaded', () => {
+      loadUserData();
+      
+      // Анимация появления элементов
+      document.querySelectorAll('.section').forEach((section, index) => {
+        setTimeout(() => {
+          section.style.opacity = '1';
+          section.style.transform = 'translateY(0)';
+        }, index * 200);
+      });
+    });
+
+    // Базовые функции
+    function startDiet() {
+      alert('Функция подбора диеты в разработке 🥗');
+    }
+
+    function startWorkout() {
+      alert('Функция тренировок в разработке 💪');
+    }
+
+    function showProgress() {
+      alert('Детальная статистика появится скоро 📊');
+    }
+    // Проверяем тему при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+});
+  </script>
+</body>
+</html>

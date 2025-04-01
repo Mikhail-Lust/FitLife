@@ -1,0 +1,202 @@
+        :root {
+            --primary-color: #2ecc71;
+            --dark-green: #27ae60;
+            --light-green: #e8f5e9;
+            --text-dark: #263238;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #f5f5f5;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .search-container {
+            position: relative;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 28px;
+            font-size: 16px;
+            background: white;
+            -webkit-appearance: none;
+        }
+
+        #searchInput:focus {
+            box-shadow: 0 0 12px rgba(46, 204, 113, 0.2);
+            outline: none;
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            width: 100%;
+            position: relative;
+        }
+
+        .nutrition-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--light-green);
+            margin: 4px 2px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .selected-items {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 25px auto 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 10px 0;
+            background: var(--light-green);
+            border-radius: 8px;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .brand {
+            text-align: center;
+            margin: 20px 0 30px;
+            width: 100%;
+        }
+
+        .brand h1 {
+            color: var(--text-dark);
+            font-size: 32px;
+            margin: 0 0 8px;
+            line-height: 1.2;
+        }
+
+        .brand span {
+            color: var(--primary-color);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        @media (min-width: 768px) {
+            .results-container {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 18px;
+            }
+
+            #searchInput {
+                padding: 16px 24px;
+                font-size: 17px;
+            }
+
+            .brand h1 {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .food-card > div {
+                flex-direction: column;
+            }
+
+            .gram-input {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+
+            .add-btn {
+                width: 100%;
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            .selected-item {
+                font-size: 14px;
+                flex-wrap: wrap;
+            }
+
+            .selected-item button {
+                margin-left: auto;
+                padding: 6px 14px;
+            }
+        }
+
+        button {
+            min-width: 44px;
+            min-height: 44px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: filter 0.2s;
+            font-weight: 500;
+        }
+
+        button:active {
+            filter: brightness(0.9);
+        }
+
+        .gram-input {
+            width: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 15px;
+            -webkit-appearance: none;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            padding: 6px 14px;
+            min-height: auto;
+            font-size: 15px;
+        }

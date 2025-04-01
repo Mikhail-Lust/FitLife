@@ -1,0 +1,340 @@
+<!-- progress.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitLife - Прогресс</title>
+  <style>
+    :root {
+      --primary: #2ecc71;
+      --secondary: #27ae60;
+      --background: #f5f6fa;
+      --text: #2d3436;
+      --white: #ffffff;
+      --card-bg: #ffffff;
+      --border-color: #e0e0e0;
+    }
+
+    [data-theme="dark"] {
+      --background: #1a1a1a;
+      --text: #ffffff;
+      --white: #2d2d2d;
+      --card-bg: #2d2d2d;
+      --border-color: #404040;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+ /* Хедер */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 0.8rem 1rem;
+  background: var(--primary);
+  color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+/* Бургер-меню */
+.burger {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+  color: var(--white);
+  z-index: 1100;
+  padding: 5px;
+  margin-left: auto; /* Добавлено для правильного позиционирования */
+  width: 44px; /* Фиксированная ширина */
+  height: 44px; /* Фиксированная высота */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Меню */
+.menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 85%; /* Адаптивная ширина */
+  max-width: 300px; /* Максимальная ширина */
+  height: 100vh;
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(10px);
+  padding: 5rem 1.5rem 1.5rem; /* Увеличен верхний отступ */
+  transition: right 0.3s ease-out;
+  z-index: 1050;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+/* Добавим кнопку закрытия */
+.menu-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--text);
+  z-index: 1100;
+}
+
+@media (max-width: 480px) {
+  .menu {
+    width: 90%;
+    padding: 4rem 1rem 1rem;
+  }
+}
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .profile-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      object-fit: cover;
+    }
+
+    /* Бургер-меню */
+    .burger {
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+      color: var(--white);
+      z-index: 1100;
+      padding: 5px;
+    }
+
+    [data-theme="dark"] .burger {
+      color: var(--text);
+    }
+
+    .menu {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 280px;
+      height: 100vh;
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1050;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    }
+
+    [data-theme="dark"] .menu {
+      background: rgba(40,40,40,0.98);
+      box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 1rem;
+      margin: 0.8rem 0;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .menu a:hover {
+      background: var(--primary);
+      color: var(--white);
+      transform: translateX(10px);
+    }
+
+    .menu.active {
+      right: 0;
+    }
+
+    /* Основной контент */
+    .main {
+      margin-top: 70px;
+      padding: 2rem;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Новая стилизация заглушки */
+    .progress-coming-soon {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: var(--card-bg);
+      border-radius: 20px;
+      margin: 2rem 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-illustration {
+      width: 220px;
+      margin: 2rem auto;
+      filter: drop-shadow(0 5px 15px rgba(46,204,113,0.2));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .progress-title {
+      color: var(--primary);
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-tips {
+      display: grid;
+      gap: 1.5rem;
+      margin-top: 3rem;
+      padding: 2rem;
+      background: rgba(46,204,113,0.05);
+      border-radius: 15px;
+    }
+
+    .tip-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem;
+      background: var(--card-bg);
+      border-radius: 12px;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .tip-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        padding: 1rem;
+      }
+      .menu {
+        width: 100%;
+      }
+      .progress-illustration {
+        width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="profile">
+      <img src="https://i.pravatar.cc/45" class="profile-img" id="userPhoto" alt="Профиль">
+      <span id="username">Загрузка...</span>
+    </div>
+    <div class="burger" onclick="toggleMenu()">☰</div>
+  </header>
+
+  <nav class="menu" id="menu">
+    <a href="index.html" onclick="closeMenu()">🏠 Главная</a>
+    <a href="diet.html" onclick="closeMenu()">🥗 Диета</a>
+    <a href="workout.html" onclick="closeMenu()">💪 Тренировки</a>
+    <a href="progress.html" onclick="closeMenu()">📊 Прогресс</a>
+    <a href="settings.html" onclick="closeMenu()">⚙️ Настройки</a>
+  </nav>
+
+  <main class="main">
+    <div class="progress-coming-soon">
+      <h1 class="progress-title">Скоро здесь расцветёт ваш прогресс! 🌱</h1>
+      <img src="https://cdn-icons-png.flaticon.com/512/3079/3079165.png" 
+           class="progress-illustration" 
+           alt="Здоровое питание">
+      <p>Наша команда усердно работает над созданием персональной системы отслеживания прогресса!</p>
+      
+      <div class="progress-tips">
+        <div class="tip-card">
+          <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" 
+               class="tip-icon" 
+               alt="Совет">
+          <div>
+            <h3>Совет дня</h3>
+            <p>Выпивайте стакан воды перед каждым приёмом пищи</p>
+          </div>
+        </div>
+        
+        <div class="tip-card">
+          <img src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png" 
+               class="tip-icon" 
+               alt="Факт">
+          <div>
+            <h3>Интересный факт</h3>
+            <p>Регулярные тренировки улучшают работу мозга</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <script>
+    // Инициализация VK
+    vkBridge.send('VKWebAppInit');
+
+    // Функции меню
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('active');
+    }
+
+    function closeMenu() {
+      document.getElementById('menu').classList.remove('active');
+    }
+
+    // Получение данных пользователя
+    async function fetchUserData() {
+      try {
+        const user = await vkBridge.send('VKWebAppGetUserInfo');
+        document.getElementById('username').textContent = `${user.first_name} ${user.last_name}`;
+        document.getElementById('userPhoto').src = user.photo_200 || 'https://i.pravatar.cc/200';
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        document.getElementById('userPhoto').src = 'https://i.pravatar.cc/200';
+        document.getElementById('username').textContent = 'Гость';
+      }
+    }
+
+    // Применение темы
+    function applyTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    // Инициализация
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme();
+      fetchUserData();
+    });
+  </script>
+</body>
+</html>

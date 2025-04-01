@@ -1,0 +1,275 @@
+    :root {
+      --primary: #2ecc71;
+      --secondary: #27ae60;
+      --background: #f5f6fa;
+      --text: #2d3436;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .profile-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      object-fit: cover;
+    }
+
+    /* Остальные стили остаются без изменений */
+    .burger { font-size: 1.8rem; cursor: pointer; transition: transform 0.3s; }
+    .burger:hover { transform: rotate(90deg); }
+    .menu {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100vh;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2000;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    }
+    .menu.active { right: 0; }
+    .menu a {
+      display: block;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+    .menu a:hover {
+      background: var(--primary);
+      color: var(--white);
+      transform: translateX(10px);
+    }
+    .main {
+      margin-top: 80px;
+      padding: 2rem;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .diet-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .diet-card {
+      background: var(--white);
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .diet-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .diet-card h3 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    .diet-details {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 2rem 0;
+    }
+    .meal-plan {
+      display: grid;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .meal-card {
+      background: rgba(46, 204, 113, 0.05);
+      padding: 1rem;
+      border-radius: 10px;
+      border-left: 4px solid var(--primary);
+    }
+    .nutri-facts {
+      display: flex;
+      justify-content: space-around;
+      margin: 2rem 0;
+      padding: 1rem;
+      background: var(--background);
+      border-radius: 10px;
+    }
+    .nutri-item {
+      text-align: center;
+    }
+    .nutri-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .change-diet {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .diet-description {
+      margin: 2rem 0;
+      padding: 2rem;
+      background: rgba(46, 204, 113, 0.05);
+      border-radius: 15px;
+    }
+    .day-selector {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 0;
+      overflow-x: auto;
+    }
+    .day-button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: var(--white);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .day-button.active {
+      background: var(--secondary);
+    }
+    .update-info {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: rgba(46, 204, 113, 0.1);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.9em;
+    }
+        :root {
+  /* Светлая тема */
+  --primary: #2ecc71;
+  --secondary: #27ae60;
+  --background: #f5f6fa;
+  --text: #2d3436;
+  --white: #ffffff;
+
+  /* Дополнительные цвета */
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
+}
+
+[data-theme="dark"] {
+  /* Темная тема */
+  --background: #1a1a1a;
+  --text: #ffffff;
+  --white: #2d2d2d;
+  --card-bg: #2d2d2d;
+  --border-color: #404040;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.diet-card,
+.training-card,
+.exercise-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+.menu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100vh;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2000;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .menu {
+  background: rgba(45,45,45,0.98);
+  box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+}
+
+.menu a {
+  display: block;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.menu a:hover {
+  background: var(--primary);
+  color: var(--white);
+  transform: translateX(10px);
+}
+
+.burger {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+  color: var(--white);
+}
+
+[data-theme="dark"] .burger {
+  color: var(--text);
+}
+    @media (max-width: 768px) {
+      .main { padding: 1rem; }
+      .diet-cards { grid-template-columns: 1fr; }
+    }
+        /* Адаптивность */
+    @media (max-width: 768px) {
+        .main {
+            padding: 1rem;
+        }
+
+        .hero {
+            padding: 2rem 1rem;
+        }
+
+        .btn-group {
+            grid-template-columns: 1fr;
+        }
+    }

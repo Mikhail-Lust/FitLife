@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitLife - Управление диетой</title>
+  <link rel="stylesheet" href="../styles/diet_html.css">
+</head>
+<body>
+  <header>
+    <div class="profile">
+      <img src="" class="profile-img" id="userPhoto" alt="Профиль">
+      <span id="username">Загрузка...</span>
+    </div>
+    <div class="burger" onclick="toggleMenu()">☰</div>
+  </header>
+
+  <nav class="menu" id="menu">
+    <a href="index.html" onclick="closeMenu()">🏠 Главная</a>
+    <a href="#" onclick="closeMenu()">🥗 Диета</a>
+    <a href="workout.html" onclick="closeMenu()">💪 Тренировки</a>
+    <a href="progress.html" onclick="closeMenu()">📊 Прогресс</a>
+    <a href="settings.html" onclick="closeMenu()">⚙️ Настройки</a>
+  </nav>
+
+  <main class="main">
+    <section class="diet-section">
+      <div id="dietChoice">
+        <h2>Выберите свою диету</h2>
+        <div class="diet-cards">
+          <div class="diet-card" onclick="selectDiet('balanced')">
+            <h3>Сбалансированная 🍎</h3>
+            <p>2000-2500 ккал/день</p>
+            <p>Оптимальное соотношение БЖУ</p>
+          </div>
+          <div class="diet-card" onclick="selectDiet('lowcarb')">
+            <h3>Низкоуглеводная 🥑</h3>
+            <p>1500-1800 ккал/день</p>
+            <p>Акцент на белки и жиры</p>
+          </div>
+          <div class="diet-card" onclick="selectDiet('vegetarian')">
+            <h3>Вегетарианская 🌱</h3>
+            <p>1800-2200 ккал/день</p>
+            <p>Растительные белки и клетчатка</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="currentDiet" style="display: none;">
+        <div class="diet-details">
+          <h2 id="dietTitle">Текущая диета: Сбалансированная 🍎</h2>
+          <div class="update-info">
+            <p>Следующее обновление: <span id="nextUpdateDate"></span></p>
+          </div>
+          <div class="diet-description">
+            <p id="dietDescription">Оптимальное сочетание белков, жиров и углеводов для поддержания здорового образа жизни.</p>
+          </div>
+          
+          <div class="day-selector" id="daySelector"></div>
+
+          <div class="nutri-facts">
+            <div class="nutri-item">
+              <div class="nutri-value" id="dailyCalories">2000</div>
+              <div>ккал/день</div>
+            </div>
+            <div class="nutri-item">
+              <div class="nutri-value" id="bjuRatio">50-30-20</div>
+              <div>БЖУ %</div>
+            </div>
+            <div class="nutri-item">
+              <div class="nutri-value" id="mealsCount">5</div>
+              <div>Приёмов пищи</div>
+            </div>
+          </div>
+
+          <h3>Рацион на <span id="currentDay">Понедельник</span>:</h3>
+          <div class="meal-plan" id="mealPlan"></div>
+
+          <div class="change-diet">
+            <button class="btn" onclick="showDietChoice()">✏️ Изменить диету</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <script>
+    // Инициализация VK Mini Apps
+    vkBridge.send('VKWebAppInit');
+
+    // ========== VK API Integration ==========
+    async function fetchUserData() {
+      try {
+        const user = await vkBridge.send('VKWebAppGetUserInfo');
+        document.getElementById('username').textContent = `${user.first_name} ${user.last_name}`;
+        document.getElementById('userPhoto').src = user.photo_200 || 'https://vk.com/images/camera_200.png';
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+        document.getElementById('userPhoto').src = 'https://vk.com/images/camera_200.png';
+        document.getElementById('username').textContent = 'Гость';
+      }
+    }
+
+    // ========== Diet Logic ==========
+    function getNextMonday(date) {
+      const result = new Date(date);
+      result.setDate(result.getDate() + (7 - result.getDay() + 1) % 7);
+      result.setHours(0, 0, 0, 0);
+      return result;
+    }
+
+    function shouldUpdateDiet(lastUpdate) {
+      if (!lastUpdate) return true;
+      const now = new Date();
+      const nextMonday = getNextMonday(new Date(lastUpdate));
+      return now >= nextMonday;
+    }
+
+    function generateNewWeeklyPlan(dietType) {
+      return {
+        ...diets[dietType],
+        weeklyPlan: generateWeeklyMeals(dietType)
+      };
+    }
+
+    const diets = {
+      balanced: {
+        title: 'Сбалансированная 🍎',
+        description: 'Оптимальное сочетание белков, жиров и углеводов для поддержания здорового образа жизни.',
+        calories: 2000,
+        bju: '50-30-20',
+        meals: 5,
+        weeklyPlan: generateWeeklyMeals('balanced')
+      },
+      lowcarb: {
+        title: 'Низкоуглеводная 🥑',
+        description: 'Акцент на белковую пищу и полезные жиры для эффективного жиросжигания.',
+        calories: 1800,
+        bju: '40-50-10',
+        meals: 4,
+        weeklyPlan: generateWeeklyMeals('lowcarb')
+      },
+      vegetarian: {
+        title: 'Вегетарианская 🌱',
+        description: 'Растительные белки и клетчатка для поддержания энергии и здоровья.',
+        calories: 2200,
+        bju: '30-40-30',
+        meals: 5,
+        weeklyPlan: generateWeeklyMeals('vegetarian')
+      }
+    };
+
+    function generateWeeklyMeals(type) {
+      const days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+      const mealsByType = {
+        balanced: {
+          breakfast: ['Овсяная каша с фруктами', 'Гречневая каша с яйцом', 'Творожная запеканка'],
+          lunch: ['Гречка с курицей', 'Рис с рыбой', 'Перловка с индейкой'],
+          dinner: ['Запеченная рыба с овощами', 'Куриная грудка с брокколи', 'Индейка с тыквой']
+        },
+        lowcarb: {
+          breakfast: ['Омлет с овощами', 'Творог с орехами', 'Яичница с беконом'],
+          lunch: ['Стейк из говядины', 'Куриные бедра с сыром', 'Рыба на гриле'],
+          dinner: ['Овощное рагу с курицей', 'Салат с тунцом', 'Запеченные овощи']
+        },
+        vegetarian: {
+          breakfast: ['Смузи-боул с фруктами', 'Тофу скрэмбл', 'Овсянка на растительном молоке'],
+          lunch: ['Чечевичный суп', 'Овощное карри с тофу', 'Фалафель с хумусом'],
+          dinner: ['Овощная запеканка', 'Гречка с грибами', 'Стейк из цветной капусты']
+        }
+      };
+
+      return days.map(day => ({
+        day,
+        meals: [
+          { title: 'Завтрак 🥞', meal: randomItem(mealsByType[type].breakfast), kcal: 400 },
+          { title: 'Перекус 🥜', meal: 'Йогурт с орехами', kcal: 200 },
+          { title: 'Обед 🍲', meal: randomItem(mealsByType[type].lunch), kcal: 600 },
+          { title: 'Полдник 🍎', meal: 'Фруктовый салат', kcal: 150 },
+          { title: 'Ужин 🐟', meal: randomItem(mealsByType[type].dinner), kcal: 500 }
+        ]
+      }));
+    }
+
+    function randomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function selectDiet(type) {
+      localStorage.setItem('currentDiet', type);
+      localStorage.setItem('lastDietUpdate', new Date().toISOString());
+      loadDiet();
+    }
+
+    function loadDiet() {
+      const dietType = localStorage.getItem('currentDiet');
+      if (!dietType) return showDietChoice();
+
+      const lastUpdate = localStorage.getItem('lastDietUpdate');
+      if (shouldUpdateDiet(lastUpdate)) {
+        diets[dietType] = generateNewWeeklyPlan(dietType);
+        localStorage.setItem('lastDietUpdate', new Date().toISOString());
+        console.log('Рацион обновлен на новую неделю!');
+      }
+
+      const diet = diets[dietType];
+      const today = new Date().getDay();
+      
+      document.getElementById('dietChoice').style.display = 'none';
+      document.getElementById('currentDiet').style.display = 'block';
+      
+      document.getElementById('dietTitle').textContent = `Текущая диета: ${diet.title}`;
+      document.getElementById('dietDescription').textContent = diet.description;
+      document.getElementById('dailyCalories').textContent = diet.calories;
+      document.getElementById('bjuRatio').textContent = diet.bju;
+      document.getElementById('mealsCount').textContent = diet.meals;
+
+      updateDaySelector(diet.weeklyPlan);
+      showDayMeals(today === 0 ? 6 : today - 1);
+
+      const nextUpdate = getNextMonday(new Date()).toLocaleDateString('ru-RU');
+      document.getElementById('nextUpdateDate').textContent = nextUpdate;
+    }
+
+    function updateDaySelector(weeklyPlan) {
+      const container = document.getElementById('daySelector');
+      container.innerHTML = weeklyPlan.map((day, index) => `
+        <button class="day-button ${index === 0 ? 'active' : ''}" 
+                onclick="showDayMeals(${index})">
+          ${day.day}
+        </button>
+      `).join('');
+    }
+
+    function showDayMeals(dayIndex) {
+      const dietType = localStorage.getItem('currentDiet');
+      const weeklyPlan = diets[dietType].weeklyPlan;
+      
+      document.querySelectorAll('.day-button').forEach((btn, index) => {
+        btn.classList.toggle('active', index === dayIndex);
+      });
+
+      document.getElementById('currentDay').textContent = weeklyPlan[dayIndex].day;
+      
+      const mealPlan = document.getElementById('mealPlan');
+      mealPlan.innerHTML = weeklyPlan[dayIndex].meals.map(meal => `
+        <div class="meal-card">
+          <h4>${meal.title}</h4>
+          <p>${meal.meal}</p>
+          <p>${meal.kcal} ккал</p>
+        </div>
+      `).join('');
+    }
+
+    function showDietChoice() {
+      localStorage.removeItem('currentDiet');
+      document.getElementById('dietChoice').style.display = 'block';
+      document.getElementById('currentDiet').style.display = 'none';
+    }
+
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('active');
+    }
+
+    function closeMenu() {
+      document.getElementById('menu').classList.remove('active');
+    }
+
+    // Запуск при загрузке страницы
+    window.addEventListener('DOMContentLoaded', () => {
+      fetchUserData(); // Загружаем данные пользователя из VK
+      
+      if (localStorage.getItem('currentDiet')) {
+        loadDiet();
+      }
+    });
+          // Проверяем тему при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+});
+  </script>
+</body>
+</html>

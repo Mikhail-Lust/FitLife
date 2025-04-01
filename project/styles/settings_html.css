@@ -1,0 +1,227 @@
+    :root {
+      --primary: #2ecc71;
+      --secondary: #27ae60;
+      --background: #f5f6fa;
+      --text: #2d3436;
+      --white: #ffffff;
+      --card-bg: #ffffff;
+      --border-color: #e0e0e0;
+    }
+
+    [data-theme="dark"] {
+      --background: #1a1a1a;
+      --text: #ffffff;
+      --white: #2d2d2d;
+      --card-bg: #2d2d2d;
+      --border-color: #404040;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+.menu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100vh;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2000;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .menu {
+  background: rgba(45,45,45,0.98);
+  box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+}
+
+.menu a {
+  display: block;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.menu a:hover {
+  background: var(--primary);
+  color: var(--white);
+  transform: translateX(10px);
+}
+
+.burger {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+  color: var(--white);
+}
+
+[data-theme="dark"] .burger {
+  color: var(--text);
+}
+    /* Хедер */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .profile-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      object-fit: cover;
+    }
+
+    .burger {
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .burger:hover {
+      transform: rotate(90deg);
+    }
+
+    /* Меню */
+    .menu {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100vh;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2000;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    }
+
+    .menu.active {
+      right: 0;
+    }
+
+    .menu a {
+      display: block;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .menu a:hover {
+      background: var(--primary);
+      color: var(--white);
+      transform: translateX(10px);
+    }
+
+    /* Основной контент */
+    .main {
+      margin-top: 80px;
+      padding: 2rem;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Настройки */
+    .settings-list {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 2rem 0;
+      border: 1px solid var(--border-color);
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        padding: 1rem;
+      }
+    }

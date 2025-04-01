@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FitLife - Умный счётчик калорий</title>
+    <link rel="stylesheet" href="../styles/calories_html.css">
+</head>
+<body>
+    <div class="brand">
+        <h1><span>Fit</span>Life</h1>
+        <p class="subtitle">Умный подсчёт калорий</p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Начните вводить продукт...">
+        <div class="results-container" id="results"></div>
+    </div>
+
+    <div class="selected-items">
+        <h3>Выбранные продукты:</h3>
+        <div id="selectedItems"></div>
+        <div style="margin-top: 18px; font-size: 16px;">
+            Итого: <strong id="totalCalories">0</strong> ккал
+        </div>
+    </div>
+
+    <script>
+        const JSON_URL = 'https://raw.githubusercontent.com/goodwin74/prod_rus/main/products.json';
+        
+        let foodData = [];
+        let selectedItems = [];
+
+        async function initializeApp() {
+            try {
+                const response = await fetch(JSON_URL);
+                const rawData = await response.json();
+                foodData = processFoodData(rawData);
+                setupEventListeners();
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                foodData = [];
+            }
+        }
+
+        function processFoodData(rawData) {
+            return rawData.map(item => {
+                const bguParts = item.bgu.split(',').map(part => {
+                    const cleanedPart = part.trim().replace(/\./g, ',');
+                    return parseFloat(cleanedPart) || 0;
+                });
+
+                return {
+                    id: item.id,
+                    name: item.name,
+                    protein: bguParts[0] || 0,
+                    fat: bguParts[1] || 0,
+                    carbs: bguParts[2] || 0,
+                    calories: parseFloat(item.kcal.replace(',', '.')) || 0
+                };
+            });
+        }
+
+        function setupEventListeners() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
+        }
+
+        function normalizeString(str) {
+            return str.toLowerCase()
+                .replace(/ё/g, 'е')
+                .replace(/[^а-яa-z0-9]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function handleSearch(e) {
+            const query = normalizeString(e.target.value);
+            const results = foodData.filter(item => 
+                normalizeString(item.name).includes(query)
+            );
+            displayResults(results.slice(0, 20));
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('results');
+            container.innerHTML = '';
+
+            if (results.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#666; padding:20px 0;">Ничего не найдено</p>';
+                return;
+            }
+
+            results.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'food-card';
+                card.innerHTML = `
+                    <h3 style="margin:0 0 12px;font-size:17px;">${item.name}</h3>
+                    <div style="margin-bottom:16px;">
+                        <span class="nutrition-badge">${item.calories.toFixed(1)} ккал</span>
+                        <span class="nutrition-badge">Б: ${item.protein.toFixed(1)}г</span>
+                        <span class="nutrition-badge">Ж: ${item.fat.toFixed(1)}г</span>
+                        <span class="nutrition-badge">У: ${item.carbs.toFixed(1)}г</span>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <input type="number" 
+                               value="100" 
+                               min="1" 
+                               class="gram-input">
+                        <button class="add-btn" 
+                                onclick="addItem(event, ${item.calories}, '${item.name.replace(/'/g, "\\'")}')">
+                            Добавить
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addItem(event, caloriesPer100g, name) {
+            const input = event.target.previousElementSibling;
+            const grams = parseInt(input.value) || 100;
+            
+            selectedItems.push({
+                name: name,
+                calories: Math.round((caloriesPer100g * grams) / 100),
+                grams: grams
+            });
+            
+            updateSelectedList();
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function updateSelectedList() {
+            const container = document.getElementById('selectedItems');
+            container.innerHTML = '';
+            
+            selectedItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'selected-item';
+                div.innerHTML = `
+                    <div style="flex:1;">
+                        <strong>${item.name}</strong> 
+                        <span style="color:#666;">(${item.grams}г)</span>
+                        <div style="color: #27ae60; margin-top:4px;">
+                            ${item.calories} ккал
+                        </div>
+                    </div>
+                    <button class="remove-btn" onclick="removeItem(${index})">
+                        ×
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+            
+            updateTotalCalories();
+        }
+
+        function updateTotalCalories() {
+            const total = selectedItems.reduce((sum, item) => sum + item.calories, 0);
+            document.getElementById('totalCalories').textContent = total;
+        }
+
+        function removeItem(index) {
+            selectedItems.splice(index, 1);
+            updateSelectedList();
+        }
+
+        initializeApp();
+    </script>
+</body>
+</html>
