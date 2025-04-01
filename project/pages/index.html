@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FitLife - Персональный фитнес-трекер</title>
   <link rel="stylesheet" href="../styles/index_html.css">
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 </head>
 <body>
   <header>
@@ -91,6 +92,17 @@
       progressCircle.style.strokeDashoffset = offset;
       document.querySelector('.progress-text').textContent = `${percent}%`;
     }  
+
+      document.addEventListener('DOMContentLoaded', () => {
+      VK.init({ apiId: 53368067 });
+
+      VK.WebAppInit()
+        .then(() => {
+          console.log('App initialized');
+          // код приложения
+        })
+        .catch(console.error);
+    });
 
     // Управление меню
     function toggleMenu() {
