@@ -86,9 +86,20 @@
     let waterTotal = 0;
     const maxWater = 2000;
 
+// Заранее инициализируем bridge
+const vkBridge = window.VKBridge;
 
-      // Sends event to client
-  vkBridge.send('VKWebAppInit');
+// Начинаем загрузку данных ДО полной загрузки DOM
+vkBridge.send('VKWebAppInit').then(async () => {
+  const data = await Promise.all([
+    vkBridge.send('VKWebAppGetUserInfo'),
+    vkBridge.send('VKWebAppStorageGet', {keys: ['settings']})
+  ]);
+
+  // Кэшируем данные
+  window.userData = data[0];
+  window.appSettings = data[1].keys[0]?.value;
+});
 
     // Инициализация прогресса
     progressCircle.style.strokeDasharray = circumference;
