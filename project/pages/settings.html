@@ -26,7 +26,7 @@
   <main class="main">
     <div class="settings-list">
       <h2>Настройки приложения</h2>
-      
+
       <div class="setting-item">
         <div>
           <h3>Темная тема</h3>
@@ -48,26 +48,99 @@
           <span class="slider"></span>
         </label>
       </div>
-
-      <div class="setting-item">
-        <div>
-          <h3>Единицы измерения</h3>
-          <p>Метрическая система (кг/см)</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="units">
-          <span class="slider"></span>
-        </label>
-      </div>
     </div>
   </main>
 
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
   <script>
-    // Инициализация VK
-    vkBridge.send('VKWebAppInit');
+    const vkBridge = window.VKBridge.default;
 
-    // Функции меню
+    // Инициализация приложения
+    async function initializeApp() {
+      try {
+        await vkBridge.send('VKWebAppInit');
+        await fetchUserData();
+        await loadSettings();
+        setupEventListeners();
+      } catch (error) {
+        console.error('Ошибка инициализации:', error);
+      }
+    }
+
+    // Загрузка данных пользователя
+    async function fetchUserData() {
+      try {
+        const user = await vkBridge.send('VKWebAppGetUserInfo');
+        document.getElementById('username').textContent = `${user.first_name} ${user.last_name}`;
+        document.getElementById('userPhoto').src = user.photo_200 || 'https://i.pravatar.cc/45';
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        document.getElementById('userPhoto').src = 'https://i.pravatar.cc/45';
+        document.getElementById('username').textContent = 'Гость';
+      }
+    }
+
+    // Загрузка настроек
+    async function loadSettings() {
+      try {
+        const [theme, notifications] = await Promise.all([
+          vkBridge.send('VKWebAppStorageGet', {keys: ['theme']}),
+          vkBridge.send('VKWebAppStorageGet', {keys: ['notifications']})
+        ]);
+
+        // Применение темы
+        const currentTheme = theme.keys[0]?.value || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        document.getElementById('darkTheme').checked = currentTheme === 'dark';
+
+        // Настройки уведомлений
+        document.getElementById('notifications').checked =
+          notifications.keys[0]?.value === 'true';
+
+      } catch (error) {
+        console.error('Ошибка загрузки настроек:', error);
+      }
+    }
+
+    // Обработчики событий
+    function setupEventListeners() {
+      // Обработчик темы
+      document.getElementById('darkTheme').addEventListener('change', async e => {
+        const theme = e.target.checked ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        try {
+          await vkBridge.send('VKWebAppStorageSet', {key: 'theme', value: theme});
+        } catch (error) {
+          console.error('Ошибка сохранения темы:', error);
+        }
+      });
+
+      // Обработчик уведомлений
+      document.getElementById('notifications').addEventListener('change', async e => {
+        if(e.target.checked) {
+          try {
+            // Запрос разрешения
+            const result = await vkBridge.send('VKWebAppAllowNotifications');
+            if(result.result) {
+              await vkBridge.send('VKWebAppStorageSet',
+                {key: 'notifications', value: 'true'});
+              return;
+            }
+          } catch (error) {
+            console.error('Ошибка разрешения:', error);
+          }
+          // Если разрешение не получено - сбрасываем переключатель
+          e.target.checked = false;
+          await vkBridge.send('VKWebAppStorageSet',
+            {key: 'notifications', value: 'false'});
+        } else {
+          await vkBridge.send('VKWebAppStorageSet',
+            {key: 'notifications', value: 'false'});
+        }
+      });
+    }
+
+    // Управление меню
     function toggleMenu() {
       document.getElementById('menu').classList.toggle('active');
     }
@@ -76,93 +149,8 @@
       document.getElementById('menu').classList.remove('active');
     }
 
-    // Получение данных пользователя
-    async function fetchUserData() {
-      try {
-        const user = await vkBridge.send('VKWebAppGetUserInfo');
-        document.getElementById('username').textContent = `${user.first_name} ${user.last_name}`;
-        document.getElementById('userPhoto').src = user.photo_100 || 'https://i.pravatar.cc/45';
-      } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
-        document.getElementById('userPhoto').src = 'https://i.pravatar.cc/45';
-        document.getElementById('username').textContent = 'Гость';
-      }
-    }
-
-    // Настройки темы
-    function loadSettings() {
-      return {
-        darkTheme: localStorage.getItem('theme') === 'dark',
-        notifications: localStorage.getItem('notifications') === 'true',
-        units: localStorage.getItem('units') === 'metric'
-      };
-    }
-
-    function applySettings() {
-      const settings = loadSettings();
-      document.documentElement.setAttribute('data-theme', settings.darkTheme ? 'dark' : 'light');
-      document.getElementById('darkTheme').checked = settings.darkTheme;
-      document.getElementById('notifications').checked = settings.notifications;
-      document.getElementById('units').checked = settings.units;
-    }
-
-    document.getElementById('darkTheme').addEventListener('change', function(e) {
-      localStorage.setItem('theme', e.target.checked ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light');
-    });
-
-    document.getElementById('notifications').addEventListener('change', function(e) {
-      localStorage.setItem('notifications', e.target.checked);
-    });
-
-    document.getElementById('units').addEventListener('change', function(e) {
-      localStorage.setItem('units', e.target.checked ? 'metric' : 'imperial');
-    });
-
-    // Инициализация
-    window.addEventListener('DOMContentLoaded', () => {
-      // Установка значений по умолчанию
-      if(!localStorage.getItem('theme')) localStorage.setItem('theme', 'light');
-      if(!localStorage.getItem('notifications')) localStorage.setItem('notifications', 'true');
-      if(!localStorage.getItem('units')) localStorage.setItem('units', 'metric');
-      
-      fetchUserData();
-      applySettings();
-    });
-    
-  
-// Инициализация VK Mini Apps
-vkBridge.send('VKWebAppInit');
-
-// Получение данных пользователя
-async function fetchUserData() {
-  try {
-    const user = await vkBridge.send('VKWebAppGetUserInfo');
-    
-    // Устанавливаем аватарку
-    const userPhoto = document.getElementById('userPhoto');
-    userPhoto.src = user.photo_200 || 'https://vk.com/images/camera_200.png';
-    
-    // Устанавливаем имя
-    const username = document.getElementById('username');
-    username.textContent = `${user.first_name} ${user.last_name}`;
-    
-    // Дополнительные данные (при необходимости)
-    console.log('User data:', user);
-    
-  } catch (error) {
-    console.error('Ошибка загрузки данных:', error);
-    // Запасные значения
-    document.getElementById('userPhoto').src = 'https://vk.com/images/camera_200.png';
-    document.getElementById('username').textContent = 'Гость';
-  }
-}
-
-// Вызываем при загрузке страницы
-window.addEventListener('DOMContentLoaded', () => {
-  fetchUserData();
-  // Остальная инициализация...
-});
+    // Инициализация при загрузке
+    window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>

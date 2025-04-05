@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 </head>
 <body>
-  <header>
+    <header>
     <div class="profile">
       <img src="https://i.pravatar.cc/45" class="profile-img" alt="Профиль">
       <span id="username">Гость</span>
@@ -28,7 +28,7 @@
     <section class="hero">
       <h1>Добро пожаловать, <span id="mainUsername">Гость</span>!</h1>
       <p>Ваш персональный помощник в мире фитнеса и здоровья</p>
-      
+
       <div class="btn-group">
         <button class="btn" onclick="startDiet()">🥗 Начать диету</button>
         <button class="btn" onclick="startWorkout()">🏋️ Начать тренировку</button>
@@ -79,11 +79,14 @@
   </main>
 
   <script>
-     // Инициализация прогресса
+    const vkBridge = window.VKBridge.default;
     const progressCircle = document.getElementById('progressCircle');
     const circumference = 2 * Math.PI * 70;
     let currentProgress = 0;
+    let waterTotal = 0;
+    const maxWater = 2000;
 
+    // Инициализация прогресса
     progressCircle.style.strokeDasharray = circumference;
     progressCircle.style.strokeDashoffset = circumference;
 
@@ -91,35 +94,82 @@
       const offset = circumference - (percent / 100) * circumference;
       progressCircle.style.strokeDashoffset = offset;
       document.querySelector('.progress-text').textContent = `${percent}%`;
-    }  
-
-      document.addEventListener('DOMContentLoaded', () => {
-      VK.init({ apiId: 53368067 });
-
-      VK.WebAppInit()
-        .then(() => {
-          console.log('App initialized');
-          // код приложения
-        })
-        .catch(console.error);
-    });
-
-    // Управление меню
-    function toggleMenu() {
-      document.getElementById('menu').classList.toggle('active');
     }
 
-    function closeMenu() {
-      document.getElementById('menu').classList.remove('active');
+    // Инициализация приложения
+    async function initializeApp() {
+      try {
+        await vkBridge.send('VKWebAppInit');
+        await loadTheme();
+        await loadUserData();
+        initWaterTracker();
+        setupEventListeners();
+
+        document.querySelectorAll('.section').forEach((section, index) => {
+          setTimeout(() => {
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+          }, index * 200);
+        });
+
+      } catch (error) {
+        console.error('Ошибка инициализации:', error);
+      }
     }
 
-    // Водный баланс
-    let waterTotal = 0;
-    const maxWater = 2000;
+    // Загрузка темы
+    async function loadTheme() {
+      try {
+        const themeData = await vkBridge.send('VKWebAppStorageGet', {keys: ['theme']});
+        const savedTheme = themeData.keys[0]?.value || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } catch (error) {
+        console.error('Ошибка загрузки темы:', error);
+      }
+    }
 
-    function addWater(amount) {
-      waterTotal = Math.min(waterTotal + amount, maxWater);
-      updateWaterDisplay();
+    // Загрузка данных пользователя
+    async function loadUserData() {
+      try {
+        const user = await vkBridge.send('VKWebAppGetUserInfo');
+        document.getElementById('username').textContent =
+          `${user.first_name} ${user.last_name}`;
+        document.getElementById('mainUsername').textContent =
+          `${user.first_name} ${user.last_name}`;
+
+        const progressData = await vkBridge.send('VKWebAppStorageGet', {keys: ['progress']});
+        const progress = parseInt(progressData.keys[0]?.value) || 0;
+        updateProgress(progress);
+
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        document.getElementById('username').textContent = 'Гость';
+        document.getElementById('mainUsername').textContent = 'Гость';
+      }
+    }
+
+    // Работа с водным балансом
+    async function initWaterTracker() {
+      try {
+        const waterData = await vkBridge.send('VKWebAppStorageGet', {keys: ['waterTotal']});
+        waterTotal = parseInt(waterData.keys[0]?.value) || 0;
+        updateWaterDisplay();
+      } catch (error) {
+        console.error('Ошибка загрузки водного баланса:', error);
+      }
+    }
+
+    async function addWater(amount) {
+      try {
+        waterTotal = Math.min(waterTotal + amount, maxWater);
+        await vkBridge.send('VKWebAppStorageSet', {
+          key: 'waterTotal',
+          value: waterTotal.toString()
+        });
+        updateWaterDisplay();
+      } catch (error) {
+        console.error('Ошибка сохранения воды:', error);
+      }
     }
 
     function updateWaterDisplay() {
@@ -128,45 +178,33 @@
       document.getElementById('waterFill').style.height = `${fillHeight}%`;
     }
 
-    // Загрузка данных пользователя
-    function loadUserData() {
-      // Здесь должна быть логика загрузки реальных данных
-      document.getElementById('username').textContent = 'Анна Петрова';
-      document.getElementById('mainUsername').textContent = 'Анна Петрова';
-      updateProgress(45);
-      updateWaterDisplay();
+    // Обработчики событий
+    function setupEventListeners() {
+      // Управление меню
+      window.toggleMenu = function() {
+        document.getElementById('menu').classList.toggle('active');
+      }
+
+      window.closeMenu = function() {
+        document.getElementById('menu').classList.remove('active');
+      }
+
+      // Базовые функции
+      window.startDiet = function() {
+        alert('Функция подбора диеты в разработке 🥗');
+      }
+
+      window.startWorkout = function() {
+        alert('Функция тренировок в разработке 💪');
+      }
+
+      window.showProgress = function() {
+        alert('Детальная статистика появится скоро 📊');
+      }
     }
 
-    // Инициализация приложения
-    window.addEventListener('DOMContentLoaded', () => {
-      loadUserData();
-      
-      // Анимация появления элементов
-      document.querySelectorAll('.section').forEach((section, index) => {
-        setTimeout(() => {
-          section.style.opacity = '1';
-          section.style.transform = 'translateY(0)';
-        }, index * 200);
-      });
-    });
-
-    // Базовые функции
-    function startDiet() {
-      alert('Функция подбора диеты в разработке 🥗');
-    }
-
-    function startWorkout() {
-      alert('Функция тренировок в разработке 💪');
-    }
-
-    function showProgress() {
-      alert('Детальная статистика появится скоро 📊');
-    }
-    // Проверяем тему при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-});
+    // Запуск приложения
+    window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
