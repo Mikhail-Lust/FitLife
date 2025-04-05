@@ -56,17 +56,8 @@
   <script>
     const vkBridge = window.VKBridge.default;
 
-    // Инициализация приложения
-    async function initializeApp() {
-      try {
-        await vkBridge.send('VKWebAppInit');
-        await fetchUserData();
-        await loadSettings();
-        setupEventListeners();
-      } catch (error) {
-        console.error('Ошибка инициализации:', error);
-      }
-    }
+  // Sends event to client
+  vkBridge.send('VKWebAppInit')
 
     // Загрузка данных пользователя
     async function fetchUserData() {
