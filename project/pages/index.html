@@ -78,140 +78,144 @@
     </section>
   </main>
 
-  <script>
-const vkBridge = window.vkBridge;
-const progressCircle = document.getElementById('progressCircle');
-const circumference = 2 * Math.PI * 70;
-let currentProgress = 0;
-let waterTotal = 0;
-const maxWater = 2000;
+<script>
+  window.addEventListener('DOMContentLoaded', async () => {
+    const vkBridge = window.vkBridge;
+    const progressCircle = document.getElementById('progressCircle');
+    const circumference = 2 * Math.PI * 70;
+    let currentProgress = 0;
+    let waterTotal = 0;
+    const maxWater = 2000;
 
-// Сначала инициализируем VKBridge ДО загрузки DOM и других данных
-const bridgeReady = vkBridge.send('VKWebAppInit');
+    // Инициализация VK Bridge
+    try {
+      await vkBridge.send('VKWebAppInit');
+    } catch (e) {
+      console.error('Ошибка VKWebAppInit:', e);
+    }
 
-// Устанавливаем базовые параметры прогресса (можно до DOMContentLoaded)
-if (progressCircle) {
-  progressCircle.style.strokeDasharray = circumference;
-  progressCircle.style.strokeDashoffset = circumference;
-}
+    // Устанавливаем параметры прогресса
+    if (progressCircle) {
+      progressCircle.style.strokeDasharray = circumference;
+      progressCircle.style.strokeDashoffset = circumference;
+    }
 
-// Обновление прогресса
-function updateProgress(percent) {
-  const offset = circumference - (percent / 100) * circumference;
-  progressCircle.style.strokeDashoffset = offset;
-  document.querySelector('.progress-text').textContent = `${percent}%`;
-}
+    // Обновление прогресса
+    function updateProgress(percent) {
+      if (!progressCircle) return;
+      const offset = circumference - (percent / 100) * circumference;
+      progressCircle.style.strokeDashoffset = offset;
+      const progressText = document.querySelector('.progress-text');
+      if (progressText) {
+        progressText.textContent = `${percent}%`;
+      }
+    }
 
-// Основная инициализация приложения
-async function initializeApp() {
-  try {
-    await bridgeReady; // Дождаться VKWebAppInit, если еще не выполнен
-    await loadTheme();
-    await loadUserData();
-    await initWaterTracker();
-    setupEventListeners();
+    // Загрузка темы
+    async function loadTheme() {
+      try {
+        const themeData = await vkBridge.send('VKWebAppStorageGet', { keys: ['theme'] });
+        const savedTheme = themeData.keys[0]?.value || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } catch (error) {
+        console.error('Ошибка загрузки темы:', error);
+      }
+    }
 
-    document.querySelectorAll('.section').forEach((section, index) => {
-      setTimeout(() => {
-        section.style.opacity = '1';
-        section.style.transform = 'translateY(0)';
-      }, index * 200);
-    });
+    // Загрузка данных пользователя
+    async function loadUserData() {
+      try {
+        const user = await vkBridge.send('VKWebAppGetUserInfo');
+        document.getElementById('username').textContent = `${user.first_name} ${user.last_name}`;
+        document.getElementById('mainUsername').textContent = `${user.first_name} ${user.last_name}`;
 
-  } catch (error) {
-    console.error('Ошибка инициализации:', error);
-  }
-}
+        const progressData = await vkBridge.send('VKWebAppStorageGet', { keys: ['progress'] });
+        const progress = parseInt(progressData.keys[0]?.value) || 0;
+        updateProgress(progress);
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        document.getElementById('username').textContent = 'Гость';
+        document.getElementById('mainUsername').textContent = 'Гость';
+      }
+    }
 
-// Загрузка темы
-async function loadTheme() {
-  try {
-    const themeData = await vkBridge.send('VKWebAppStorageGet', {keys: ['theme']});
-    const savedTheme = themeData.keys[0]?.value || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  } catch (error) {
-    console.error('Ошибка загрузки темы:', error);
-  }
-}
+    // Инициализация водного трекера
+    async function initWaterTracker() {
+      try {
+        const waterData = await vkBridge.send('VKWebAppStorageGet', { keys: ['waterTotal'] });
+        waterTotal = parseInt(waterData.keys[0]?.value) || 0;
+        updateWaterDisplay();
+      } catch (error) {
+        console.error('Ошибка загрузки водного баланса:', error);
+      }
+    }
 
-// Загрузка данных пользователя
-async function loadUserData() {
-  try {
-    const user = await vkBridge.send('VKWebAppGetUserInfo');
-    document.getElementById('username').textContent =
-      `${user.first_name} ${user.last_name}`;
-    document.getElementById('mainUsername').textContent =
-      `${user.first_name} ${user.last_name}`;
+    // Добавление воды
+    async function addWater(amount) {
+      try {
+        waterTotal = Math.min(waterTotal + amount, maxWater);
+        await vkBridge.send('VKWebAppStorageSet', {
+          key: 'waterTotal',
+          value: waterTotal.toString()
+        });
+        updateWaterDisplay();
+      } catch (error) {
+        console.error('Ошибка сохранения воды:', error);
+      }
+    }
 
-    const progressData = await vkBridge.send('VKWebAppStorageGet', {keys: ['progress']});
-    const progress = parseInt(progressData.keys[0]?.value) || 0;
-    updateProgress(progress);
+    // Обновление отображения воды
+    function updateWaterDisplay() {
+      const waterCount = document.getElementById('waterCount');
+      const waterFill = document.getElementById('waterFill');
+      if (waterCount && waterFill) {
+        waterCount.textContent = waterTotal;
+        const fillHeight = (waterTotal / maxWater) * 100;
+        waterFill.style.height = `${fillHeight}%`;
+      }
+    }
 
-  } catch (error) {
-    console.error('Ошибка загрузки данных:', error);
-    document.getElementById('username').textContent = 'Гость';
-    document.getElementById('mainUsername').textContent = 'Гость';
-  }
-}
+    // Обработчики событий
+    function setupEventListeners() {
+      window.toggleMenu = function () {
+        document.getElementById('menu')?.classList.toggle('active');
+      }
 
-// Инициализация водного трекера
-async function initWaterTracker() {
-  try {
-    const waterData = await vkBridge.send('VKWebAppStorageGet', {keys: ['waterTotal']});
-    waterTotal = parseInt(waterData.keys[0]?.value) || 0;
-    updateWaterDisplay();
-  } catch (error) {
-    console.error('Ошибка загрузки водного баланса:', error);
-  }
-}
+      window.closeMenu = function () {
+        document.getElementById('menu')?.classList.remove('active');
+      }
 
-// Добавление воды
-async function addWater(amount) {
-  try {
-    waterTotal = Math.min(waterTotal + amount, maxWater);
-    await vkBridge.send('VKWebAppStorageSet', {
-      key: 'waterTotal',
-      value: waterTotal.toString()
-    });
-    updateWaterDisplay();
-  } catch (error) {
-    console.error('Ошибка сохранения воды:', error);
-  }
-}
+      window.startDiet = function () {
+        alert('Функция подбора диеты в разработке 🥗');
+      }
 
-// Обновление отображения воды
-function updateWaterDisplay() {
-  document.getElementById('waterCount').textContent = waterTotal;
-  const fillHeight = (waterTotal / maxWater) * 100;
-  document.getElementById('waterFill').style.height = `${fillHeight}%`;
-}
+      window.startWorkout = function () {
+        alert('Функция тренировок в разработке 💪');
+      }
 
-// Обработчики событий
-function setupEventListeners() {
-  window.toggleMenu = function() {
-    document.getElementById('menu').classList.toggle('active');
-  }
+      window.showProgress = function () {
+        alert('Детальная статистика появится скоро 📊');
+      }
+    }
 
-  window.closeMenu = function() {
-    document.getElementById('menu').classList.remove('active');
-  }
+    // Основной запуск
+    async function initializeApp() {
+      await loadTheme();
+      await loadUserData();
+      await initWaterTracker();
+      setupEventListeners();
 
-  window.startDiet = function() {
-    alert('Функция подбора диеты в разработке 🥗');
-  }
+      document.querySelectorAll('.section').forEach((section, index) => {
+        setTimeout(() => {
+          section.style.opacity = '1';
+          section.style.transform = 'translateY(0)';
+        }, index * 200);
+      });
+    }
 
-  window.startWorkout = function() {
-    alert('Функция тренировок в разработке 💪');
-  }
+    await initializeApp();
+  });
+</script>
 
-  window.showProgress = function() {
-    alert('Детальная статистика появится скоро 📊');
-  }
-}
-
-// Запускаем всё после загрузки DOM
-window.addEventListener('DOMContentLoaded', initializeApp);
-
-  </script>
 </body>
 </html>
