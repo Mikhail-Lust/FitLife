@@ -86,6 +86,10 @@
     let waterTotal = 0;
     const maxWater = 2000;
 
+
+      // Sends event to client
+  vkBridge.send('VKWebAppInit');
+
     // Инициализация прогресса
     progressCircle.style.strokeDasharray = circumference;
     progressCircle.style.strokeDashoffset = circumference;
