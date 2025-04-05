@@ -138,6 +138,17 @@
         document.getElementById('mainUsername').textContent = 'Гость';
       }
     }
+        async function fetchUserData() {
+      try {
+        const user = await vkBridge.send('VKWebAppGetUserInfo');
+        document.getElementById('username').textContent = `${user.first_name} ${user.last_name}`;
+        document.getElementById('userPhoto').src = user.photo_200 || 'https://vk.com/images/camera_200.png';
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+        document.getElementById('userPhoto').src = 'https://vk.com/images/camera_200.png';
+        document.getElementById('username').textContent = 'Гость';
+      }
+    }
 
     // Инициализация водного трекера
     async function initWaterTracker() {
